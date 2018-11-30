@@ -19,12 +19,15 @@ package com.netflix.spinnaker.fiat.providers;
 import com.netflix.spinnaker.fiat.model.resources.Resource;
 import com.netflix.spinnaker.fiat.model.resources.Role;
 
-import java.util.Collection;
 import java.util.Set;
 
 public interface ResourceProvider<R extends Resource> {
 
   Set<R> getAll() throws ProviderException;
+
+  default Set<R> getAll(boolean force) throws ProviderException {
+    return getAll();
+  }
 
   Set<R> getAllRestricted(Set<Role> roles, boolean isAdmin) throws ProviderException;
 

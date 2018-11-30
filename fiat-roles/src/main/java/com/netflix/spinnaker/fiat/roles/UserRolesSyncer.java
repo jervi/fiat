@@ -117,10 +117,10 @@ public class UserRolesSyncer implements ApplicationListener<RemoteStatusChangedE
         .withSuccessInterval(Duration.ofMillis(syncDelayMs))
         .withFailureInterval(Duration.ofMillis(syncFailureDelayMs));
 
-    lockManager.acquireLock(lockOptions, this::syncAndReturn);
+    lockManager.acquireLock(lockOptions, () -> syncAndReturn(false));
   }
 
-  public long syncAndReturn() {
+  public long syncAndReturn(boolean force) {
     FixedBackOff backoff = new FixedBackOff();
     backoff.setInterval(retryIntervalMs);
     backoff.setMaxAttempts(Math.floorDiv(syncDelayTimeoutMs, retryIntervalMs) + 1);
@@ -143,7 +143,7 @@ public class UserRolesSyncer implements ApplicationListener<RemoteStatusChangedE
         if (!(temp = getUserPermissions()).isEmpty()) {
           combo.putAll(temp);
         }
-        if (!(temp = getServiceAccountsAsMap()).isEmpty()) {
+        if (!(temp = getServiceAccountsAsMap(force)).isEmpty()) {
           combo.putAll(temp);
         }
 
@@ -179,13 +179,17 @@ public class UserRolesSyncer implements ApplicationListener<RemoteStatusChangedE
     }
   }
 
+  public long syncAndReturn() {
+    return syncAndReturn(false);
+  }
+
   private boolean isServerHealthy() {
     return healthIndicator.health().getStatus() == Status.UP;
   }
 
-  private Map<String, UserPermission> getServiceAccountsAsMap() {
+  private Map<String, UserPermission> getServiceAccountsAsMap(boolean force) {
     return serviceAccountProvider
-        .getAll()
+        .getAll(force)
         .stream()
         .map(ServiceAccount::toUserPermission)
         .collect(Collectors.toMap(UserPermission::getId, Functions.identity()));

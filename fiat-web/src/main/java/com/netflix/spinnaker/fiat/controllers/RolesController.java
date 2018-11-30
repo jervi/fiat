@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
@@ -107,10 +108,11 @@ public class RolesController {
 
   @RequestMapping(value = "/sync", method = RequestMethod.POST)
   public long sync(HttpServletResponse response,
-                   @RequestBody(required = false) List<String> specificRoles) throws IOException {
+                   @RequestBody(required = false) List<String> specificRoles,
+                   @RequestParam(required = false, defaultValue = "false") boolean force) throws IOException {
     if (specificRoles == null || specificRoles.isEmpty()) {
       log.info("Full role sync invoked by web request.");
-      long count = syncer.syncAndReturn();
+      long count = syncer.syncAndReturn(true);
       if (count == 0) {
         response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE,
                            "Error occurred syncing permissions. See Fiat Logs.");

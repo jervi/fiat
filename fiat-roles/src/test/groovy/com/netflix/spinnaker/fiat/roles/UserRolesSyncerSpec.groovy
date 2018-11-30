@@ -41,7 +41,6 @@ import spock.lang.Specification
 import spock.lang.Subject
 import spock.lang.Unroll
 
-import javax.annotation.Nonnull
 import java.util.concurrent.Callable
 
 class UserRolesSyncerSpec extends Specification {
@@ -105,8 +104,8 @@ class UserRolesSyncerSpec extends Specification {
         .setAccounts([new Account().setName("account3")] as Set)
 
     def serviceAccountProvider = Mock(ResourceProvider) {
-      getAll() >> [new ServiceAccount().setName("abc"),
-                   new ServiceAccount().setName("xyz@domain.com")]
+      getAll(false) >> [new ServiceAccount().setName("abc"),
+                        new ServiceAccount().setName("xyz@domain.com")]
     }
 
     def permissionsResolver = Mock(PermissionsResolver)

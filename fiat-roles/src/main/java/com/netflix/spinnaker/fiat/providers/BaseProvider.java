@@ -23,7 +23,6 @@ import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.netflix.spinnaker.fiat.config.ProviderCacheConfig;
 import com.netflix.spinnaker.fiat.model.resources.Resource;
 import com.netflix.spinnaker.fiat.model.resources.Role;
-import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,8 +65,17 @@ public abstract class BaseProvider<R extends Resource> implements ResourceProvid
 
   @Override
   public Set<R> getAll() throws ProviderException {
+    return getAll(false);
+  }
+
+  @Override
+  public Set<R> getAll(boolean force) throws ProviderException {
     try {
-      return ImmutableSet.copyOf(cache.get(CACHE_KEY, this::loadAll));
+      if (force) {
+        return loadAll();
+      } else {
+        return ImmutableSet.copyOf(cache.get(CACHE_KEY, this::loadAll));
+      }
     } catch (ExecutionException | UncheckedExecutionException e) {
       if (e.getCause() instanceof ProviderException) {
         throw (ProviderException) e.getCause();
