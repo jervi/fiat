@@ -18,6 +18,7 @@ package com.netflix.spinnaker.fiat.shared;
 
 import com.netflix.spinnaker.fiat.model.UserPermission;
 import com.squareup.okhttp.Response;
+import org.springframework.web.bind.annotation.RequestParam;
 import retrofit.http.Body;
 import retrofit.http.DELETE;
 import retrofit.http.GET;
@@ -52,19 +53,24 @@ public interface FiatService {
 
   /**
    * Use to update all users.
+   * @param force <code>true</code> if you want to bypass all caches and force a request to front50.
+   *              Defaults to <code>false</code>, and should normally not be changed.
    * @return The number of non-anonymous users synced.
    */
   @POST("/roles/sync")
-  long sync();
+  long sync(@RequestParam(name = "force", required = false, defaultValue = "false") boolean force);
 
   /**
    * Use to update a subset of users. An empty list will update the anonymous/unrestricted user.
    *
    * @param roles Users with any role listed should be updated.
+   * @param force <code>true</code> if you want to bypass all caches and force a request to front50.
+   *              Defaults to <code>false</code>, and should normally not be changed.
    * @return The number of non-anonymous users synced.
    */
   @POST("/roles/sync")
-  long sync(@Body List<String> roles);
+  long sync(@Body List<String> roles,
+            @RequestParam(name = "force", required = false, defaultValue = "false") boolean force);
 
   /**
    * @param userId The user being logged in
