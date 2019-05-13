@@ -16,7 +16,6 @@
 
 package com.netflix.spinnaker.fiat.providers.internal;
 
-import com.netflix.hystrix.exception.HystrixBadRequestException;
 import com.netflix.spinnaker.fiat.model.resources.Application;
 import com.netflix.spinnaker.fiat.model.resources.ServiceAccount;
 import com.netflix.spinnaker.fiat.providers.HealthTrackable;
@@ -44,7 +43,7 @@ public class Front50Service implements HealthTrackable, InitializingBean {
   }
 
   @Override
-  public void afterPropertiesSet() throws Exception {
+  public void afterPropertiesSet() {
     try {
       // Initialize caches (also indicates service is healthy)
       refreshApplications();
@@ -67,20 +66,15 @@ public class Front50Service implements HealthTrackable, InitializingBean {
     log.info("Falling back to {} cache. {}", resource, message);
   }
 
-
   @Scheduled(fixedDelayString = "${fiat.front50RefreshMs:30000}")
   public void refreshApplications() {
-    applicationCache.set(
-            front50Api.getAllApplicationPermissions()
-    );
+    applicationCache.set(front50Api.getAllApplicationPermissions());
     healthTracker.success();
   }
 
   @Scheduled(fixedDelayString = "${fiat.front50RefreshMs:30000}")
   public void refreshServiceAccounts() {
-    serviceAccountCache.set(
-            front50Api.getAllServiceAccounts()
-    );
+    serviceAccountCache.set(front50Api.getAllServiceAccounts());
     healthTracker.success();
   }
 }

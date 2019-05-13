@@ -52,13 +52,9 @@ public class RolesController {
 
   @Autowired @Setter UserRolesSyncer syncer;
 
-  @Autowired
-  @Setter
-  ClouddriverService clouddriverService;
+  @Autowired @Setter ClouddriverService clouddriverService;
 
-  @Autowired
-  @Setter
-  Front50Service front50Service;
+  @Autowired @Setter Front50Service front50Service;
 
   @RequestMapping(value = "/{userId:.+}", method = RequestMethod.POST)
   public void putUserPermission(@PathVariable String userId) {
